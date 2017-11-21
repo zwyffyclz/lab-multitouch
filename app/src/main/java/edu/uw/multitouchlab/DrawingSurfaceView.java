@@ -10,6 +10,8 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.util.HashMap;
+
 /**
  * An example SurfaceView for generating graphics on
  * @author Joel Ross
@@ -30,8 +32,9 @@ public class DrawingSurfaceView extends SurfaceView implements SurfaceHolder.Cal
     private Paint whitePaint; //drawing variables (pre-defined for speed)
     private Paint goldPaint; //drawing variables (pre-defined for speed)
 
-    public Ball ball; //public for easy access
+    private HashMap<Integer, Ball> touches;
 
+    public Ball ball; //public for easy access
 
     /**
      * We need to override all the constructors, since we don't know which will be called
@@ -61,7 +64,32 @@ public class DrawingSurfaceView extends SurfaceView implements SurfaceHolder.Cal
         goldPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         goldPaint.setColor(Color.rgb(145, 123, 76));
 
+        touches = new HashMap<>();
+
         init();
+    }
+
+    // add new ball to touches
+    public synchronized void addTouch(Integer id, float x, float y) {
+        Ball newBall = new Ball(x, y, 100);
+        touches.put(id, newBall);
+    }
+
+    // remove ball from touches
+    public synchronized void removeTouch(Integer id) {
+        touches.remove(id);
+    }
+
+    // change ball's configuration
+    public synchronized void moveTouch(Integer id, float x, float y) {
+        if (!touches.containsKey(id)) {
+            addTouch(id, x, y);
+        } else {
+            Ball curBall = touches.get(id);
+            curBall.setX(x);
+            curBall.setY(y);
+            touches.put(id, curBall);
+        }
     }
 
     /**
@@ -91,6 +119,10 @@ public class DrawingSurfaceView extends SurfaceView implements SurfaceHolder.Cal
         canvas.drawColor(Color.rgb(51,10,111)); //purple out the background
 
         canvas.drawCircle(ball.cx, ball.cy, ball.radius, whitePaint); //we can draw directly onto the canvas
+
+        for (Ball ball : touches.values()) {
+            canvas.drawCircle(ball.getX(), ball.getY(), ball.getRadius(), goldPaint);
+        }
     }
 
 
