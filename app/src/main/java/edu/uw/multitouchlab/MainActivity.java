@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
                 for (int i = 0; i < count; i++) {
                     int curId = event.getPointerId(i);
                     float curX = event.getX(i);
-                    float curY = event.getY(i);
+                    float curY = event.getY(i) - getSupportActionBar().getHeight();
                     view.moveTouch(curId, curX, curY);
                 }
                 return true;
